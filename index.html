@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mouse/Trackpad Spotlight</title>
+<style>
+:root{
+  --x: 50%;
+  --y: 50%;
+  --size: 50px;
+  --soft: 20px;
+  --dim: 0.98;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:system-ui, -apple-system, "Segoe UI", Roboto, "ヒラギノ角ゴ ProN";}
+.viewer{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  color:#fff;
+  overflow:hidden;
+  outline: none; /* フォーカス時の枠は必要なら調整 */
+}
+.title {
+  position:relative;
+  z-index:2;
+  text-align:center;
+  font-size:clamp(18px,4vw,32px);
+  text-shadow:0 6px 18px rgba(0,0,0,0.6);
+  pointer-events:none;
+  user-select:none;
+}
+.viewer::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:3;
+  background:
+    radial-gradient(
+      circle at var(--x) var(--y),
+      rgba(0,0,0,0) calc(var(--size) * 0.0),
+      rgba(0,0,0,0.25) calc(var(--size) * 0.5),
+      rgba(0,0,0,var(--dim)) calc(var(--size) + var(--soft))
+    );
+  transition:background-position 120ms linear;
+  pointer-events:none;
+}
+.viewer::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.05), rgba(0,0,0,0.15));
+  mix-blend-mode: multiply;
+  pointer-events:none;
+}
+@media (max-width:640px){
+  :root{ --size:120px; --soft:70px; }
+  .title{ font-size:18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- tabindex を付けてキーボード入力を受けられるようにする -->
+<div class="viewer" id="viewer" tabindex="0" role="application" aria-label="スポットライトビューア">
+  <div class="title">
+    <p style="margin:.4em 0 0;opacity:.9;font-size:.9rem">
+    Harry Potter and the Philosopher's Stone is a fantasy novel written by British author J. K. Rowling. It is the first novel in the Harry Potter series and was Rowling's debut novel. It follows Harry Potter, a young wizard who discovers his magical heritage on his eleventh birthday when he receives a letter of acceptance to Hogwarts School of Witchcraft and Wizardry. Harry makes close friends and a few enemies during his first year at the school. With the help of his friends, Ron Weasley and Hermione Granger, he faces an attempted comeback by the dark wizard Lord Voldemort, who killed Harry's parents but failed to kill Harry when he was just 15 months old.
+
+The book was first published in the United Kingdom on 26 June 1997 by Bloomsbury. It was published in the United States the following year by Scholastic Corporation under the title Harry Potter and the Sorcerer's Stone. It won most of the British book awards that were judged by children and other awards in the US. The book reached the top of the New York Times list of best-selling fiction in August 1999, and stayed near the top of that list for much of 1999 and 2000. It has been translated into at least 73 other languages and made into a feature-length film of the same name, as have all six of its sequels. The novel has sold in excess of 120 million copies, making it the fourth best-selling book of all time.[1][2]
+
+Most reviews were very favourable, commenting on Rowling's imagination, humour, simple, direct style and clever plot construction, although a few complained that the final chapters seemed rushed. The writing has been compared to that of Jane Austen, one of Rowling's favourite authors; Roald Dahl, whose works dominated children's stories before the appearance of Harry Potter; and the ancient Greek story-teller Homer. While some commentators thought the book looked backward to Victorian and Edwardian boarding school stories, others thought it placed the genre firmly in the modern world by featuring contemporary ethical and social issues, as well as showing overcoming obstacles like bullying.
+
+The Harry Potter series has been used as a source of object lessons in educational techniques, sociological analysis, and marketing.
+Harry Potter lives with his abusive uncle and aunt, Vernon and Petunia Dursley, and their bullying, spoiled son, Dudley. On Harry's 11th birthday, he learns that he is a wizard when a man named Rubeus Hagrid invites him to attend Hogwarts, a school of magic. Hagrid explains that when Harry was an infant, a Dark wizard named Voldemort murdered his parents and tried to kill him as well. However, Voldemort's killing curse rebounded and seemingly destroyed him, leaving a lightning bolt-shaped scar on Harry's forehead.
+
+Hagrid takes Harry to Diagon Alley, where the latter discovers his fame among wizards while buying a wand, an owl named Hedwig, and other school supplies. A month later, Harry takes the Hogwarts Express to Hogwarts. He befriends Ron Weasley, a first-year student, during the journey. He also meets Hermione Granger and has a confrontation with Draco Malfoy. At Hogwarts, a magical Sorting Hat assigns each first-year student to a House. Harry, Ron, and Hermione are assigned to Gryffindor, although the Hat considers putting Harry in Slytherin.
+
+Harry's broomstick flying ability earns him a place on the Gryffindor Quidditch team as the Seeker. He develops a dislike for the Potions professor Severus Snape, who seems to hate Harry. Harry and Ron discover a gigantic three-headed dog guarding a trapdoor one night. The two boys later save Hermione from a troll and begin a friendship with her. During Harry's first Quidditch match, his broomstick attempts to throw him off. Snape's strange behaviour during the match convinces Hermione that he jinxed Harry's broom. On Christmas, Harry receives an anonymous gift – his father's invisibility cloak. While using the cloak to explore the school undisturbed, he discovers the Mirror of Erised, which shows the viewer what they most desire. Harry sees his family in the mirror.
+
+Harry, Ron, and Hermione learn that the three-headed dog is guarding a magical object called the Philosopher's Stone, which grants its user immortality. A centaur named Firenze warns Harry that Voldemort is plotting to steal the Stone to restore his body. When the headmaster, Albus Dumbledore, is lured away from Hogwarts, Harry and his friends fear the theft is imminent and descend through the trapdoor to retrieve the artefact. Various obstacles force Ron and Hermione to remain behind while Harry approaches the Stone. He encounters Professor Quirrell, the Defence Against the Dark Arts professor, who explains that he serves Voldemort and that it was he who jinxed Harry's broom; Snape was trying to save him during the match. Quirrell attempts to retrieve the Stone from the Mirror of Erised, but cannot figure out how. When Harry looks in the Mirror, he feels the Stone drop into his pocket. Quirrell then reveals that Voldemort has possessed his body, and shows Harry Voldemort's face on the back of his head. Quirrell attempts to seize the Stone, but his flesh burns upon contact with Harry. As Harry and Quirrell struggle, Harry's scar begins to burn, and he passes out.
+
+Harry awakens in the school's infirmary. Dumbledore explains that Harry survived because he is protected by a magical charm created when his mother died trying to protect him. Quirrell's hatred and greed caused him to burn upon contact with Harry, and Voldemort abandoned him to die. Dumbledore also reveals that the Stone has been destroyed. During the school's year-end feast, Gryffindor is awarded the House Cup. Harry then returns to the Dursleys for the summer.
+
+Harry Potter is an orphan whom Rowling imagined as a "scrawny, black-haired, green eyed and bespectacled boy who didn't know he was a wizard."[3] She developed the series' story and characters to explain how Harry came to be in this situation and how his life unfolded from there.[4] Apart from the first chapter, the events of this book take place just before and in the year following Harry's eleventh birthday. Voldemort's attack left a lightning bolt-shaped scar on Harry's forehead,[4] which produces stabbing pains whenever Voldemort is present. Harry has a natural talent for Quidditch and became the first person in a century to get on their team in their first year.
+Ron Weasley is Harry's age, and Rowling describes him as the ultimate best friend "always there when you need him".[5] He is freckled, red-haired, and quite tall. He grew up in a fairly large pure-blood family as the sixth born of seven children. Although his family is quite poor, they still live comfortably and happily. His loyalty and bravery in the face of a game of Wizard Chess plays a vital part in finding the Philosopher's Stone.
+Hermione Granger, the daughter of an all-Muggle family, is a bossy girl who has apparently memorised most of the textbooks before the start of term. Rowling described Hermione as a "very logical, upright, and good" character with "a lot of insecurity and a great fear of failure beneath her swottiness".[6] Despite her nagging efforts to keep Harry and Ron out of trouble, she becomes a close friend of the two boys after they save her from a troll and her magical and analytical skills play an important role in finding the Philosopher's Stone. She has bushy brown hair and rather large front teeth.
+Neville Longbottom is a plump, diffident boy, so forgetful that his grandmother gives him a Remembrall, to remind him if he forgets something. Neville's magical abilities are weak and appeared just in time to save his life when he was eight. Despite his timidity, Neville will fight anyone after some encouragement or if he thinks it is right and important.
+Rubeus Hagrid, a half-giant nearly 12 feet (3.7 m) tall, with tangled black hair and beard, who was expelled from Hogwarts and his wand was snapped in half (resulting in him never to use a wand again), though Professor Dumbledore let him stay on as the school's gamekeeper, a job which enables him to give lavish affection, care and even pet names (such as Norbert the dragon) on even the most dangerous of magical creatures. Hagrid is fiercely loyal to Dumbledore and quickly becomes a close friend of Harry, Ron and, later, Hermione, but his carelessness makes him unreliable.
+Professor Albus Dumbledore, a tall, thin man who wears half-moon spectacles and has silver hair and a beard that tucks into his belt, is the headmaster of Hogwarts, and thought to be the only wizard Voldemort fears. Dumbledore, while renowned for his achievements in magic, shrugs off praise, though he is aware of his own brilliance. Rowling described him as the "epitome of goodness".[7]
+Professor Minerva McGonagall, a tall, severe-looking woman with black hair tied in a tight bun, teaches Transfiguration and is able to transform herself into a cat. She is Deputy Headmistress and Head of Gryffindor House.
+Petunia Dursley, the sister of Harry's mother Lily, is a thin woman with a long neck that she uses for spying on the neighbours. As a Muggle, she regards her magical sister as a freak and tries to pretend that she never existed.
+Vernon Dursley, the husband of Petunia Dursley, is a heavily built man whose irascible bluster covers a narrow mind and a fear of anything unusual.
+Dudley Dursley is an overweight, spoilt bully and Harry's cousin.
+Draco Malfoy is a slim, pale boy who speaks in a bored drawl. He is arrogant about his skill in Quidditch, and despises anyone who is not a pure-blood wizard and wizards who do not share his views. His parents had supported Voldemort, but changed sides after the dark wizard's disappearance, claiming they had been bewitched. Draco avoids direct confrontations and tries to get Harry and his friends into trouble.
+Oliver Wood is Harry's Quidditch captain and keeper for the Gryffindor Quidditch team.
+Professor Quirrell is a twitching, stammering, and nervous man who teaches Defence Against the Dark Arts. Reputedly he was a brilliant scholar, but his nerve was shattered by an encounter with vampires. Quirrell wears a turban to conceal the fact that he is voluntarily possessed by Voldemort, whose face appears on the back of Quirrell's head.
+Professor Severus Snape, who has a hooked nose, sallow complexion, and greasy black hair, teaches Potions, but would prefer to teach Defence Against the Dark Arts. Snape favours pupils in his own House of Slytherin, and appears to delight in humiliating those from other houses, especially Harry. Several incidents, beginning with the shooting pain in Harry's scar during the start-of-term feast, lead Harry and his friends to think Snape is aiding Voldemort.
+Argus Filch, the school caretaker who knows the school's secret passages better than anyone else except, perhaps, the Weasley twins. His cat, Mrs. Norris, aids his constant hunt for misbehaving pupils.
+Other members of staff include: the dumpy Herbology teacher and Head of Hufflepuff House Professor Sprout, Professor Flitwick, the tiny and excitable Charms teacher and Head of Ravenclaw House, the soporific History of magic teacher, Professor Binns, a ghost who does not seem to have noticed his own death, and Madam Hooch, the Quidditch coach, who is strict, but a considerate and methodical teacher. The poltergeist Peeves wanders around the castle causing trouble wherever he can.
+
+In the book, Rowling introduces an eclectic cast of characters. The first character to be introduced is Vernon Dursley, Harry's uncle. Most of the actions centre on the eponymous hero, Harry Potter, an orphan who escapes his miserable childhood with the Dursley family. Rowling imagined him as a "scrawny, black-haired, bespectacled boy who didn't know he was a wizard"[3] and says she transferred part of her pain about losing her mother to him.[8] During the book, Harry makes two close friends, Ronald Weasley and Hermione Granger. Ron is described by Rowling as the ultimate best friend, "always there when you need him".[5] Rowling has described Hermione as a "very logical, upright and good" character with "a lot of insecurity and a great fear of failure beneath her swottiness".[6]
+
+Rowling also imagined a supporting cast of adults. The headmaster of Hogwarts is the powerful, but kind wizard Albus Dumbledore, who becomes Harry's confidant. Rowling described him as "the epitome of goodness".[7] His right hand is severe Minerva McGonagall, the friendly half-giant Rubeus Hagrid, who saved Harry from the Dursley family and the sinister Severus Snape. Professor Quirrell is also featured in the novel.</p>
+  </div>
+</div>
+
+<script>
+/* =============
+   ヘルパー関数
+   ============= */
+// '%'-付き文字列を数値（0〜100）にして返す
+function pctToNum(s){
+  return parseFloat(s.trim().replace('%','')) || 0;
+}
+// 0〜100 にクランプして '%'' を付けた文字列を返す
+function clampPct(n){
+  if(n < 0) n = 0;
+  if(n > 100) n = 100;
+  return n + '%';
+}
+
+const viewer = document.getElementById('viewer');
+
+// マウス / ポインタ / タッチの位置を受け取って CSS 変数に反映する
+function setPosFromClient(clientX, clientY){
+  const rect = viewer.getBoundingClientRect();
+  // 相対位置をパーセントで計算
+  let x = ((clientX - rect.left) / rect.width) * 100;
+  let y = ((clientY - rect.top) / rect.height) * 100;
+  // 安全にクランプ
+  x = Math.min(100, Math.max(0, x));
+  y = Math.min(100, Math.max(0, y));
+  viewer.style.setProperty('--x', x + '%');
+  viewer.style.setProperty('--y', y + '%');
+}
+
+/* ===========================
+   ポインタ（マウス/トラックパッド）対応
+   pointermove はトラックパッドでも反応しやすい
+   =========================== */
+viewer.addEventListener('pointermove', (e) => {
+  // 視覚的に追随させるだけなので preventDefault は不要
+  setPosFromClient(e.clientX, e.clientY);
+}, {passive:true});
+
+/* タッチでも追従（複数指は最初の指を使う） */
+viewer.addEventListener('touchmove', (e) => {
+  const t = e.touches[0];
+  if(!t) return;
+  setPosFromClient(t.clientX, t.clientY);
+}, {passive:true});
+
+/* マウス移動イベントも残しておく（互換） */
+window.addEventListener('mousemove', (e) => {
+  setPosFromClient(e.clientX, e.clientY);
+}, {passive:true});
+
+/* ===========================
+   キーボード矢印キー & WASD 対応
+   矢印キーで 1回につき deltaPct% 移動
+   =========================== */
+const deltaPct = 5; // ←1回につき何%動かすか（好みで調整）
+
+function moveBy(dxPct, dyPct){
+  const style = getComputedStyle(viewer);
+  const curX = pctToNum(style.getPropertyValue('--x'));
+  const curY = pctToNum(style.getPropertyValue('--y'));
+  const nextX = clampPct(curX + dxPct);
+  const nextY = clampPct(curY + dyPct);
+  viewer.style.setProperty('--x', nextX);
+  viewer.style.setProperty('--y', nextY);
+}
+
+// キー操作を viewer がフォーカスしているときのみ効かせたい場合は
+// viewer.addEventListener('keydown', handler) に変えてもOK。
+// ここではグローバルに効くようにしてある（必要なら変更可能）。
+window.addEventListener('keydown', (e) => {
+  // 矢印キー / WASD をサポート
+  switch(e.key){
+    case 'ArrowLeft': case 'a': case 'A':
+      e.preventDefault();
+      moveBy(-deltaPct, 0); break;
+    case 'ArrowRight': case 'd': case 'D':
+      e.preventDefault();
+      moveBy(deltaPct, 0); break;
+    case 'ArrowUp': case 'w': case 'W':
+      e.preventDefault();
+      moveBy(0, -deltaPct); break;
+    case 'ArrowDown': case 's': case 'S':
+      e.preventDefault();
+      moveBy(0, deltaPct); break;
+    case 'Home':
+      // Homeで中央に戻す（任意）
+      viewer.style.setProperty('--x','50%'); viewer.style.setProperty('--y','50%'); break;
+  }
+});
+
+/* ===========================
+   フォーカス補助（任意）
+   - クリックで viewer にフォーカスを当てる（キーボード操作のため）
+   - 自動的にフォーカスさせたくない場合はこの部分を削除
+   =========================== */
+viewer.addEventListener('click', () => viewer.focus());
+
+// 最後に初期位置を確実にセット
+viewer.style.setProperty('--x', '50%');
+viewer.style.setProperty('--y', '50%');
+</script>
+
+</body>
+</html>
