@@ -1,259 +1,276 @@
 <!doctype html>
 <html lang="ja">
+
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Secret Map的な</title>
-<style>
-/* CSS変数で光の位置とサイズを管理 */
-:root{
-  --x: 50%;
-  --y: 50%;
-  --size: 80px;
-  --soft: 40px;
-  --dim: 0.95;
-}
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Secret Map的な</title>
+    <style>
+        /* CSS変数で光の位置とサイズを管理 */
+        :root {
+            --x: 50%;
+            --y: 50%;
+            --size: 80px;
+            --soft: 40px;
+            --dim: 0.95;
+        }
 
-*{box-sizing:border-box}
-html,body{
-  height:100%;
-  margin:0;
-  font-family: 'Georgia', serif;
-  overflow: hidden;
-}
+        * {
+            box-sizing: border-box
+        }
 
-/* メインコンテナ - 古い地図のような背景 */
-.map-container{
-  min-height:100vh;
-  position:relative;
-  background: 
-    linear-gradient(45deg, #2a1810 0%, #3d2817 50%, #2a1810 100%);
-  color:#f4e4c1;
-  overflow:hidden;
-  outline: none;
-}
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Georgia', serif;
+            overflow: hidden;
+        }
 
-/* 地図のテクスチャ（紙のような質感） */
-.map-container::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:1;
-  background: 
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.03) 2px,
-      rgba(0,0,0,0.03) 4px
-    );
-  mix-blend-mode: multiply;
-  pointer-events:none;
-}
+        /* メインコンテナ - 古い地図のような背景 */
+        .map-container {
+            min-height: 100vh;
+            position: relative;
+            background:
+                linear-gradient(45deg, #2a1810 0%, #3d2817 50%, #2a1810 100%);
+            color: #f4e4c1;
+            overflow: hidden;
+            outline: none;
+        }
 
-/* スポットライト効果 - マウス位置に追従 */
-.map-container::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  z-index:5;
-  background:
-    radial-gradient(
-      circle at var(--x) var(--y),
-      rgba(0,0,0,0) calc(var(--size) * 0.2),
-      rgba(0,0,0,0.4) calc(var(--size) * 0.8),
-      rgba(0,0,0,var(--dim)) calc(var(--size) + var(--soft))
-    );
-  pointer-events:none;
-  transition: background 80ms ease-out;
-}
+        /* 地図のテクスチャ（紙のような質感） */
+        .map-container::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            background:
+                repeating-linear-gradient(0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.03) 2px,
+                    rgba(0, 0, 0, 0.03) 4px);
+            mix-blend-mode: multiply;
+            pointer-events: none;
+        }
 
-/* 地図のコンテンツエリア */
-.map-content{
-  position: relative;
-  z-index: 2;
-  padding: 60px 40px;
-  max-width: 1200px;
-  margin: 0 auto;
-  min-height: 100vh;
-}
+        /* スポットライト効果 - マウス位置に追従 */
+        .map-container::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            background:
+                radial-gradient(circle at var(--x) var(--y),
+                    rgba(0, 0, 0, 0) calc(var(--size) * 0.2),
+                    rgba(0, 0, 0, 0.4) calc(var(--size) * 0.8),
+                    rgba(0, 0, 0, var(--dim)) calc(var(--size) + var(--soft)));
+            pointer-events: none;
+            transition: background 80ms ease-out;
+        }
 
-
-
-/* 秘密の場所マーカー */
-.secret-spot{
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: radial-gradient(circle, #ff6b6b 0%, #c92a2a 100%);
-  border-radius: 50%;
-  border: 3px solid #d4af37;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  z-index: 3;
-  box-shadow: 0 0 20px rgba(255,107,107,0.6);
-}
-
-.secret-spot:hover{
-  transform: scale(1.2);
-  box-shadow: 0 0 30px rgba(255,107,107,0.9);
-}
+        /* 地図のコンテンツエリア */
+        .map-content {
+            position: relative;
+            z-index: 2;
+            padding: 60px 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
 
 
 
-/* レスポンシブ対応 */
-@media (max-width:768px){
-  :root{ --size:120px; --soft:60px; }
-  .map-content{ padding: 40px 20px; }
-  .controls{ font-size: 11px; padding: 10px 16px; }
-  .secret-spot{ width: 35px; height: 35px; }
-}
-</style>
+        /* 秘密の場所マーカー */
+        .secret-spot {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: radial-gradient(circle, #ff6b6b 0%, #c92a2a 100%);
+            border-radius: 50%;
+            border: 3px solid #d4af37;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            z-index: 3;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .secret-spot:hover {
+            transform: scale(1.2);
+            box-shadow: 0 0 30px rgba(255, 107, 107, 0.9);
+        }
+
+
+
+        /* レスポンシブ対応 */
+        @media (max-width:768px) {
+            :root {
+                --size: 120px;
+                --soft: 60px;
+            }
+
+            .map-content {
+                padding: 40px 20px;
+            }
+
+            .controls {
+                font-size: 11px;
+                padding: 10px 16px;
+            }
+
+            .secret-spot {
+                width: 35px;
+                height: 35px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="map-container" id="mapContainer" tabindex="0" role="application" aria-label="インタラクティブ秘密の地図">
-  <div class="map-content">
-    <!-- 秘密の場所マーカー（クリックで発見） -->
-    <div class="secret-spot" style="top:15%;left:20%;" data-discovered="false"></div>
-    <div class="secret-spot" style="top:40%;left:70%;" data-discovered="false"></div>
-    <div class="secret-spot" style="top:65%;left:30%;" data-discovered="false"></div>
-    <div class="secret-spot" style="top:25%;left:85%;" data-discovered="false"></div>
-    <div class="secret-spot" style="top:80%;left:60%;" data-discovered="false"></div>
-    <div class="secret-spot" style="top:50%;left:45%;" data-discovered="false"></div>
-  </div>
-</div>
+    <div class="map-container" id="mapContainer" tabindex="0" role="application" aria-label="インタラクティブ秘密の地図">
+        <div class="map-content">
+            <!-- 秘密の場所マーカー（クリックで発見） -->
+            <div class="secret-spot" style="top:15%;left:20%;" data-discovered="false"></div>
+            <div class="secret-spot" style="top:40%;left:70%;" data-discovered="false"></div>
+            <div class="secret-spot" style="top:65%;left:30%;" data-discovered="false"></div>
+            <div class="secret-spot" style="top:25%;left:85%;" data-discovered="false"></div>
+            <div class="secret-spot" style="top:80%;left:60%;" data-discovered="false"></div>
+            <div class="secret-spot" style="top:50%;left:45%;" data-discovered="false"></div>
+        </div>
+    </div>
 
-<script>
-/* ========================
-   初期設定
-   ======================== */
-const mapContainer = document.getElementById('mapContainer');
-const secretSpots = document.querySelectorAll('.secret-spot');
-let discoveredCount = 0;
+    <script>
+        /* ========================
+           初期設定
+           ======================== */
+        const mapContainer = document.getElementById('mapContainer');
+        const secretSpots = document.querySelectorAll('.secret-spot');
+        let discoveredCount = 0;
 
-/* ========================
-   ヘルパー関数
-   ======================== */
-// パーセント文字列を数値に変換
-function pctToNum(s){
-  return parseFloat(s.trim().replace('%','')) || 0;
-}
+        /* ========================
+           ヘルパー関数
+           ======================== */
+        // パーセント文字列を数値に変換
+        function pctToNum(s) {
+            return parseFloat(s.trim().replace('%', '')) || 0;
+        }
 
-// 数値を0-100にクランプしてパーセント文字列に
-function clampPct(n){
-  return Math.min(100, Math.max(0, n)) + '%';
-}
+        // 数値を0-100にクランプしてパーセント文字列に
+        function clampPct(n) {
+            return Math.min(100, Math.max(0, n)) + '%';
+        }
 
-/* ========================
-   スポットライト位置の更新
-   ======================== */
-function updateSpotlight(clientX, clientY){
-  const rect = mapContainer.getBoundingClientRect();
-  // クライアント座標を要素内の相対位置（%）に変換
-  let x = ((clientX - rect.left) / rect.width) * 100;
-  let y = ((clientY - rect.top) / rect.height) * 100;
-  // 範囲を0-100%に制限
-  x = Math.min(100, Math.max(0, x));
-  y = Math.min(100, Math.max(0, y));
-  // CSS変数を更新
-  mapContainer.style.setProperty('--x', x + '%');
-  mapContainer.style.setProperty('--y', y + '%');
-}
+        /* ========================
+           スポットライト位置の更新
+           ======================== */
+        function updateSpotlight(clientX, clientY) {
+            const rect = mapContainer.getBoundingClientRect();
+            // クライアント座標を要素内の相対位置（%）に変換
+            let x = ((clientX - rect.left) / rect.width) * 100;
+            let y = ((clientY - rect.top) / rect.height) * 100;
+            // 範囲を0-100%に制限
+            x = Math.min(100, Math.max(0, x));
+            y = Math.min(100, Math.max(0, y));
+            // CSS変数を更新
+            mapContainer.style.setProperty('--x', x + '%');
+            mapContainer.style.setProperty('--y', y + '%');
+        }
 
-/* ========================
-   マウス/ポインタ/タッチ対応
-   ======================== */
-// ポインタ移動（マウス・トラックパッド）
-mapContainer.addEventListener('pointermove', (e) => {
-  updateSpotlight(e.clientX, e.clientY);
-}, {passive:true});
+        /* ========================
+           マウス/ポインタ/タッチ対応
+           ======================== */
+        // ポインタ移動（マウス・トラックパッド）
+        mapContainer.addEventListener('pointermove', (e) => {
+            updateSpotlight(e.clientX, e.clientY);
+        }, { passive: true });
 
-// タッチ移動（スマホ・タブレット）
-mapContainer.addEventListener('touchmove', (e) => {
-  const touch = e.touches[0];
-  if(touch) updateSpotlight(touch.clientX, touch.clientY);
-}, {passive:true});
+        // タッチ移動（スマホ・タブレット）
+        mapContainer.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            if (touch) updateSpotlight(touch.clientX, touch.clientY);
+        }, { passive: true });
 
-// マウス移動（互換性のため）
-window.addEventListener('mousemove', (e) => {
-  updateSpotlight(e.clientX, e.clientY);
-}, {passive:true});
+        // マウス移動（互換性のため）
+        window.addEventListener('mousemove', (e) => {
+            updateSpotlight(e.clientX, e.clientY);
+        }, { passive: true });
 
-/* ========================
-   キーボード操作（矢印キー・WASD）
-   ======================== */
-const moveStep = 3; // 1回の移動量（%）
+        /* ========================
+           キーボード操作（矢印キー・WASD）
+           ======================== */
+        const moveStep = 3; // 1回の移動量（%）
 
-function moveSpotlight(dx, dy){
-  const style = getComputedStyle(mapContainer);
-  const currentX = pctToNum(style.getPropertyValue('--x'));
-  const currentY = pctToNum(style.getPropertyValue('--y'));
-  const newX = clampPct(currentX + dx);
-  const newY = clampPct(currentY + dy);
-  mapContainer.style.setProperty('--x', newX);
-  mapContainer.style.setProperty('--y', newY);
-}
+        function moveSpotlight(dx, dy) {
+            const style = getComputedStyle(mapContainer);
+            const currentX = pctToNum(style.getPropertyValue('--x'));
+            const currentY = pctToNum(style.getPropertyValue('--y'));
+            const newX = clampPct(currentX + dx);
+            const newY = clampPct(currentY + dy);
+            mapContainer.style.setProperty('--x', newX);
+            mapContainer.style.setProperty('--y', newY);
+        }
 
-window.addEventListener('keydown', (e) => {
-  switch(e.key){
-    case 'ArrowLeft': case 'a': case 'A':
-      e.preventDefault();
-      moveSpotlight(-moveStep, 0);
-      break;
-    case 'ArrowRight': case 'd': case 'D':
-      e.preventDefault();
-      moveSpotlight(moveStep, 0);
-      break;
-    case 'ArrowUp': case 'w': case 'W':
-      e.preventDefault();
-      moveSpotlight(0, -moveStep);
-      break;
-    case 'ArrowDown': case 's': case 'S':
-      e.preventDefault();
-      moveSpotlight(0, moveStep);
-      break;
-    case 'Home':
-      // Homeキーで中央にリセット
-      mapContainer.style.setProperty('--x','50%');
-      mapContainer.style.setProperty('--y','50%');
-      break;
-  }
-});
+        window.addEventListener('keydown', (e) => {
+            switch (e.key) {
+                case 'ArrowLeft': case 'a': case 'A':
+                    e.preventDefault();
+                    moveSpotlight(-moveStep, 0);
+                    break;
+                case 'ArrowRight': case 'd': case 'D':
+                    e.preventDefault();
+                    moveSpotlight(moveStep, 0);
+                    break;
+                case 'ArrowUp': case 'w': case 'W':
+                    e.preventDefault();
+                    moveSpotlight(0, -moveStep);
+                    break;
+                case 'ArrowDown': case 's': case 'S':
+                    e.preventDefault();
+                    moveSpotlight(0, moveStep);
+                    break;
+                case 'Home':
+                    // Homeキーで中央にリセット
+                    mapContainer.style.setProperty('--x', '50%');
+                    mapContainer.style.setProperty('--y', '50%');
+                    break;
+            }
+        });
 
-/* ========================
-   秘密の場所の発見機能
-   ======================== */
-secretSpots.forEach(spot => {
-  spot.addEventListener('click', function(){
-    // まだ発見されていない場所のみカウント
-    if(this.getAttribute('data-discovered') === 'false'){
-      this.setAttribute('data-discovered', 'true');
-      // 発見済みの視覚的フィードバック
-      this.style.background = 'radial-gradient(circle, #51cf66 0%, #2f9e44 100%)';
-      this.style.boxShadow = '0 0 30px rgba(81,207,102,0.9)';
-      // カウンターを更新
-      discoveredCount++;
-      // 全て発見したらメッセージ
-      if(discoveredCount === 6){
-        setTimeout(() => {
-          alert('🎉 全ての場所を発見しました！');
-        }, 300);
-      }
-    }
-  });
-});
+        /* ========================
+           秘密の場所の発見機能
+           ======================== */
+        secretSpots.forEach(spot => {
+            spot.addEventListener('click', function () {
+                // まだ発見されていない場所のみカウント
+                if (this.getAttribute('data-discovered') === 'false') {
+                    this.setAttribute('data-discovered', 'true');
+                    // 発見済みの視覚的フィードバック
+                    this.style.background = 'radial-gradient(circle, #51cf66 0%, #2f9e44 100%)';
+                    this.style.boxShadow = '0 0 30px rgba(81,207,102,0.9)';
+                    // カウンターを更新
+                    discoveredCount++;
+                    // 全て発見したらメッセージ
+                    if (discoveredCount === 6) {
+                        setTimeout(() => {
+                            alert('🎉 全ての場所を発見しました！');
+                        }, 300);
+                    }
+                }
+            });
+        });
 
-/* ========================
-   初期化
-   ======================== */
-// スポットライトを中央に配置
-mapContainer.style.setProperty('--x', '50%');
-mapContainer.style.setProperty('--y', '50%');
+        /* ========================
+           初期化
+           ======================== */
+        // スポットライトを中央に配置
+        mapContainer.style.setProperty('--x', '50%');
+        mapContainer.style.setProperty('--y', '50%');
 
-// クリックでフォーカス（キーボード操作のため）
-mapContainer.addEventListener('click', () => mapContainer.focus());
-</script>
+        // クリックでフォーカス（キーボード操作のため）
+        mapContainer.addEventListener('click', () => mapContainer.focus());
+    </script>
 
 </body>
+
 </html>
