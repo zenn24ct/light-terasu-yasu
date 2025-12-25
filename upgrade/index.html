@@ -129,7 +129,6 @@ html,body{
    初期設定
    ======================== */
 const mapContainer = document.getElementById('mapContainer');
-const counterNumber = document.getElementById('counterNumber');
 const secretSpots = document.querySelectorAll('.secret-spot');
 let discoveredCount = 0;
 
@@ -235,11 +234,10 @@ secretSpots.forEach(spot => {
       this.style.boxShadow = '0 0 30px rgba(81,207,102,0.9)';
       // カウンターを更新
       discoveredCount++;
-      counterNumber.textContent = `${discoveredCount} / 6`;
       // 全て発見したらメッセージ
       if(discoveredCount === 6){
         setTimeout(() => {
-          alert('🎉 おめでとう！全ての秘密の場所を発見しました！');
+          alert('🎉 全ての場所を発見しました！');
         }, 300);
       }
     }
