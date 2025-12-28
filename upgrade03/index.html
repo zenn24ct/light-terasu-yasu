@@ -1,337 +1,117 @@
 <!doctype html>
 <html lang="ja">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>深淵からの脱出 - Escape from the Abyss</title>
+    <title>深淵からの脱出</title>
     <style>
-        /* ==================== CSS Variables ==================== */
         :root {
             --x: 50%;
             --y: 50%;
             --size: 100px;
-            --soft: 50px;
-            --dim: 0.98;
-            --fog-opacity: 0;
         }
 
-        * {
-            box-sizing: border-box
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html,
         body {
-            height: 100%;
-            margin: 0;
+            height: 100vh;
             font-family: 'Courier New', monospace;
             overflow: hidden;
             background: #000;
         }
 
-        /* ==================== Game Container ==================== */
-        .game-container {
-            min-height: 100vh;
+        .game {
+            height: 100vh;
             position: relative;
-            background: radial-gradient(circle at 50% 50%, #0a0e27 0%, #000000 100%);
+            background: radial-gradient(circle, #0a0e27 0%, #000 100%);
             overflow: hidden;
             outline: none;
-            transition: filter 0.3s;
         }
 
-        /* Screen shake effect */
-        @keyframes shake {
-
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-
-            10%,
-            30%,
-            50%,
-            70%,
-            90% {
-                transform: translate(-4px, 4px);
-            }
-
-            20%,
-            40%,
-            60%,
-            80% {
-                transform: translate(4px, -4px);
-            }
-        }
-
-        .game-container.shake {
-            animation: shake 0.3s;
-        }
-
-        /* Damage flash */
-        .game-container.damage {
-            filter: brightness(1.5) saturate(0) hue-rotate(0deg);
-        }
-
-        /* ==================== Spotlight Effect ==================== */
-        .game-container::before {
+        .game::before {
             content: "";
             position: absolute;
             inset: 0;
             z-index: 10;
-            background:
-                radial-gradient(circle at var(--x) var(--y),
-                    rgba(0, 0, 0, 0) calc(var(--size) * 0.3),
-                    rgba(0, 0, 0, 0.6) calc(var(--size) * 0.7),
-                    rgba(0, 0, 0, var(--dim)) calc(var(--size) + var(--soft)));
+            background: radial-gradient(circle at var(--x) var(--y),
+                transparent 0,
+                transparent calc(var(--size) * 0.3),
+                rgba(0, 0, 0, 0.6) calc(var(--size) * 0.7),
+                rgba(0, 0, 0, 0.98) calc(var(--size) + 50px));
             pointer-events: none;
             transition: background 60ms ease-out;
         }
 
-        /* Fog overlay for horror effect */
-        .game-container::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            z-index: 9;
-            background:
-                repeating-linear-gradient(0deg,
-                    transparent 0px,
-                    rgba(100, 100, 255, var(--fog-opacity)) 2px,
-                    transparent 4px);
-            pointer-events: none;
-            animation: fogMove 8s linear infinite;
-        }
-
-        @keyframes fogMove {
-            0% {
-                transform: translateY(0);
-            }
-
-            100% {
-                transform: translateY(20px);
-            }
-        }
-
-        /* ==================== Player ==================== */
         .player {
             position: absolute;
             width: 30px;
             height: 30px;
-            background: radial-gradient(circle, #4dabf7 0%, #1971c2 100%);
+            background: radial-gradient(circle, #4dabf7, #1971c2);
             border-radius: 50%;
             border: 3px solid #74c0fc;
             box-shadow: 0 0 30px rgba(77, 171, 247, 0.8);
             z-index: 5;
-            transition: all 0.15s ease-out;
-            left: 5%;
-            top: 5%;
         }
 
-        @keyframes pulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 30px rgba(77, 171, 247, 0.8);
-            }
-
-            50% {
-                box-shadow: 0 0 50px rgba(77, 171, 247, 1);
-            }
-        }
-
-        .player {
-            animation: pulse 2s infinite;
-        }
-
-        /* Speed boost effect */
-        .player.boosted {
-            box-shadow: 0 0 50px rgba(77, 247, 171, 1);
-            border-color: #8ce99a;
-            animation: pulse 0.5s infinite;
-        }
-
-        /* Invincibility effect */
-        .player.invincible {
-            box-shadow: 0 0 50px rgba(255, 212, 59, 1);
-            border-color: #ffd43b;
-            animation: pulse 0.3s infinite, rainbow 2s linear infinite;
-        }
-
-        @keyframes rainbow {
-            0% {
-                filter: hue-rotate(0deg);
-            }
-
-            100% {
-                filter: hue-rotate(360deg);
-            }
-        }
-
-        /* ==================== Goal ==================== */
         .goal {
             position: absolute;
             width: 50px;
             height: 50px;
-            background: radial-gradient(circle, #51cf66 0%, #2f9e44 100%);
+            background: radial-gradient(circle, #51cf66, #2f9e44);
             border-radius: 50%;
             border: 4px solid #8ce99a;
             box-shadow: 0 0 40px rgba(81, 207, 102, 0.9);
             z-index: 5;
-            animation: goalPulse 1.5s infinite;
         }
 
-        @keyframes goalPulse {
-
-            0%,
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 40px rgba(81, 207, 102, 0.9);
-            }
-
-            50% {
-                transform: scale(1.1);
-                box-shadow: 0 0 60px rgba(81, 207, 102, 1);
-            }
-        }
-
-        /* ==================== Walls ==================== */
         .wall {
             position: absolute;
-            background: linear-gradient(135deg, #f03e3e 0%, #c92a2a 100%);
+            background: linear-gradient(135deg, #f03e3e, #c92a2a);
             border: 2px solid #ff6b6b;
             box-shadow: 0 0 20px rgba(240, 62, 62, 0.5);
             z-index: 3;
         }
 
-        /* Moving walls */
-        .wall.moving {
-            animation: wallMove 4s ease-in-out infinite;
-        }
-
-        @keyframes wallMove {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            50% {
-                transform: translateX(50px);
-            }
-        }
-
-        /* ==================== Stars (collectibles) ==================== */
         .star {
             position: absolute;
             width: 25px;
             height: 25px;
+            background: radial-gradient(circle, #ffd43b, #fab005);
             border-radius: 50%;
             border: 2px solid #ffe066;
-            z-index: 4;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        /* Normal star */
-        .star.normal {
-            background: radial-gradient(circle, #ffd43b 0%, #fab005 100%);
             box-shadow: 0 0 20px rgba(255, 212, 59, 0.8);
-            animation: twinkle 1.5s infinite;
+            z-index: 4;
+            transition: opacity 0.3s;
         }
 
-        /* Speed boost star (green) */
-        .star.speed {
-            background: radial-gradient(circle, #51cf66 0%, #2f9e44 100%);
-            box-shadow: 0 0 20px rgba(81, 207, 102, 0.8);
-            animation: twinkle 1.2s infinite;
-        }
-
-        /* Invincibility star (gold) */
-        .star.invincible {
-            background: radial-gradient(circle, #ffd43b 0%, #fd7e14 100%);
-            box-shadow: 0 0 25px rgba(255, 212, 59, 1);
-            animation: twinkle 1s infinite, rotate 3s linear infinite;
-        }
-
-        @keyframes twinkle {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.6;
-            }
-        }
-
-        @keyframes rotate {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .star:hover {
-            transform: scale(1.3);
-        }
-
-        /* ==================== Enemies ==================== */
         .enemy {
             position: absolute;
             width: 35px;
             height: 35px;
-            background: radial-gradient(circle, #e03131 0%, #5c0a0a 100%);
+            background: radial-gradient(circle, #e03131, #5c0a0a);
             border-radius: 50%;
             border: 3px solid #ff6b6b;
             box-shadow: 0 0 30px rgba(224, 49, 49, 0.9);
             z-index: 6;
-            animation: enemyPulse 1s infinite;
         }
 
-        @keyframes enemyPulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 30px rgba(224, 49, 49, 0.9);
-            }
-
-            50% {
-                box-shadow: 0 0 50px rgba(224, 49, 49, 1);
-                transform: scale(1.1);
-            }
-        }
-
-        /* ==================== Traps ==================== */
         .trap {
             position: absolute;
             width: 40px;
             height: 40px;
-            background: radial-gradient(circle, #862e9c 0%, #5f3dc4 100%);
+            background: radial-gradient(circle, #862e9c, #5f3dc4);
             border-radius: 50%;
             border: 2px solid #9775fa;
             box-shadow: 0 0 25px rgba(134, 46, 156, 0.7);
             z-index: 2;
-            animation: trapBlink 2s infinite;
+            animation: blink 2s infinite;
         }
 
-        @keyframes trapBlink {
-
-            0%,
-            90%,
-            100% {
-                opacity: 0.3;
-            }
-
-            95% {
-                opacity: 1;
-            }
+        @keyframes blink {
+            0%, 90%, 100% { opacity: 0.3; }
+            95% { opacity: 1; }
         }
 
-        /* ==================== UI Elements ==================== */
         .hud {
             position: fixed;
             top: 20px;
@@ -340,16 +120,14 @@
             color: #74c0fc;
             font-size: 16px;
             text-shadow: 0 0 10px rgba(116, 192, 252, 0.8);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
         }
 
-        .hud-item {
+        .hud div {
             background: rgba(0, 0, 0, 0.8);
             padding: 10px 15px;
             border-radius: 8px;
             border: 2px solid #4dabf7;
+            margin-bottom: 10px;
             min-width: 150px;
         }
 
@@ -368,72 +146,11 @@
             text-shadow: 0 0 10px rgba(255, 212, 59, 0.8);
         }
 
-        .timer.warning {
+        .timer.warn {
             color: #ff6b6b;
             border-color: #f03e3e;
-            animation: timerBlink 0.5s infinite;
         }
 
-        @keyframes timerBlink {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
-        }
-
-        /* Level indicator */
-        .level-indicator {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 30;
-            background: rgba(0, 0, 0, 0.95);
-            padding: 30px 60px;
-            border-radius: 15px;
-            color: #ffd43b;
-            font-size: 48px;
-            font-weight: bold;
-            border: 3px solid #fab005;
-            text-shadow: 0 0 20px rgba(255, 212, 59, 1);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .level-indicator.show {
-            opacity: 1;
-        }
-
-        /* Floating message */
-        .message {
-            position: fixed;
-            top: 30%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 25;
-            background: rgba(0, 0, 0, 0.9);
-            padding: 20px 40px;
-            border-radius: 10px;
-            color: #8ce99a;
-            font-size: 20px;
-            border: 2px solid #51cf66;
-            text-shadow: 0 0 10px rgba(140, 233, 154, 0.8);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-
-        .message.show {
-            opacity: 1;
-        }
-
-        /* ==================== Modal Screens ==================== */
         .modal {
             position: fixed;
             inset: 0;
@@ -442,42 +159,33 @@
             display: none;
             align-items: center;
             justify-content: center;
-            flex-direction: column;
         }
 
-        .modal.show {
-            display: flex;
-        }
+        .modal.show { display: flex; }
 
-        .modal-content {
+        .modal-box {
             text-align: center;
             color: white;
-            max-width: 600px;
+            max-width: 500px;
             padding: 40px;
-            background: rgba(10, 14, 39, 0.8);
+            background: rgba(10, 14, 39, 0.9);
             border-radius: 20px;
             border: 3px solid #4dabf7;
         }
 
         .modal-title {
             font-size: 48px;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             color: #51cf66;
             text-shadow: 0 0 20px rgba(81, 207, 102, 1);
         }
 
-        .modal-title.game-over {
+        .modal-title.fail {
             color: #ff6b6b;
             text-shadow: 0 0 20px rgba(255, 107, 107, 1);
         }
 
-        .modal-text {
-            font-size: 20px;
-            margin-bottom: 20px;
-            line-height: 1.6;
-        }
-
-        .modal-stats {
+        .stats {
             background: rgba(0, 0, 0, 0.5);
             padding: 20px;
             border-radius: 10px;
@@ -485,704 +193,496 @@
             font-size: 18px;
         }
 
-        .modal-stats div {
-            margin: 8px 0;
-        }
+        .stats div { margin: 8px 0; }
 
         .btn {
             padding: 15px 40px;
             font-size: 18px;
-            background: linear-gradient(135deg, #4dabf7 0%, #1971c2 100%);
+            background: linear-gradient(135deg, #4dabf7, #1971c2);
             border: none;
             border-radius: 10px;
             color: white;
             cursor: pointer;
-            transition: transform 0.2s;
-            box-shadow: 0 5px 20px rgba(77, 171, 247, 0.5);
             margin: 10px;
+            box-shadow: 0 5px 20px rgba(77, 171, 247, 0.5);
         }
 
-        .btn:hover {
-            transform: scale(1.1);
-        }
+        .btn:hover { transform: scale(1.05); }
 
-        .btn.secondary {
-            background: linear-gradient(135deg, #868e96 0%, #495057 100%);
-            box-shadow: 0 5px 20px rgba(134, 142, 150, 0.5);
-        }
-
-        /* Start screen specific */
-        .start-screen .modal-content {
-            border-color: #51cf66;
-        }
-
-        .controls-list {
-            text-align: left;
-            margin: 20px auto;
-            max-width: 400px;
-            font-size: 16px;
-            line-height: 2;
-        }
-
-        /* ==================== Minimap ==================== */
-        .minimap {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 150px;
-            height: 150px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #4dabf7;
-            border-radius: 10px;
-            z-index: 20;
-            overflow: hidden;
-        }
-
-        .minimap-content {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform: scale(0.15);
-            transform-origin: top left;
-        }
-
-        .minimap .player,
-        .minimap .goal,
-        .minimap .enemy,
-        .minimap .star {
-            filter: brightness(2);
-        }
-
-        /* ==================== Responsive ==================== */
         @media (max-width:768px) {
-            :root {
-                --size: 130px;
-                --soft: 70px;
-            }
-
-            .hud {
-                font-size: 14px;
-            }
-
-            .timer {
-                font-size: 20px;
-            }
-
-            .minimap {
-                width: 100px;
-                height: 100px;
-            }
+            :root { --size: 130px; }
+            .hud { font-size: 14px; }
+            .timer { font-size: 20px; }
         }
     </style>
 </head>
-
 <body>
+    <div class="game" id="game" tabindex="0">
+        <div id="maze"></div>
 
-    <div class="game-container" id="gameContainer" tabindex="0">
-        <div class="maze" id="maze"></div>
-
-        <!-- HUD -->
         <div class="hud">
-            <div class="hud-item">
-                <div>⭐ Stars: <span id="starCount">0</span>/<span id="totalStars">0</span></div>
-            </div>
-            <div class="hud-item">
-                <div>💖 Health: <span id="health">3</span></div>
-            </div>
-            <div class="hud-item">
-                <div>📊 Level: <span id="levelNum">1</span></div>
-            </div>
-            <div class="hud-item" id="powerupDisplay" style="display:none;">
-                <div id="powerupText">⚡ Speed Boost</div>
-            </div>
+            <div>⭐ <span id="stars">0</span>/<span id="total">0</span></div>
+            <div>💖 <span id="health">3</span></div>
+            <div>📊 Level <span id="level">1</span></div>
         </div>
 
         <div class="timer" id="timer">60s</div>
 
-        <!-- Messages -->
-        <div class="level-indicator" id="levelIndicator">LEVEL 1</div>
-        <div class="message" id="floatingMessage">+10 Points!</div>
-
-        <!-- Minimap -->
-        <div class="minimap">
-            <div class="minimap-content" id="minimapContent"></div>
-        </div>
-
-        <!-- Start Screen -->
-        <div class="modal start-screen show" id="startScreen">
-            <div class="modal-content">
+        <div class="modal show" id="start">
+            <div class="modal-box">
                 <div class="modal-title">深淵からの脱出</div>
-                <div class="modal-text">
-                    暗闇に包まれた迷宮を探索し、<br>
-                    すべての星を集めてゴールへ辿り着け。<br><br>
-                    敵と罠があなたを待ち受ける...<br>
-                    時間内に脱出せよ。
-                </div>
-                <div class="controls-list">
-                    <div>🎮 <strong>Controls:</strong></div>
-                    <div>⌨️ Arrow Keys / WASD - Move</div>
-                    <div>🖱️ Mouse Drag - Move</div>
-                    <div>📱 Touch/Swipe - Move</div>
-                    <div>Space - Pause</div>
-                </div>
-                <div class="modal-text" style="font-size:16px; margin-top:20px;">
-                    <strong>Power-ups:</strong><br>
-                    🌟 Yellow Star - Points<br>
-                    💚 Green Star - Speed Boost<br>
-                    ✨ Gold Star - Invincibility
-                </div>
-                <button class="btn" onclick="startGame()">スタート</button>
+                <button class="btn" onclick="start()">スタート</button>
             </div>
         </div>
 
-        <!-- Game Over / Victory Screen -->
-        <div class="modal" id="endScreen">
-            <div class="modal-content">
+        <div class="modal" id="end">
+            <div class="modal-box">
                 <div class="modal-title" id="endTitle">🎉 Victory!</div>
-                <div class="modal-text" id="endText">You escaped from the abyss!</div>
-                <div class="modal-stats">
-                    <div>⭐ Stars Collected: <span id="finalStars">0</span></div>
-                    <div>⏱️ Time Remaining: <span id="finalTime">0</span>s</div>
-                    <div>📊 Level Reached: <span id="finalLevel">1</span></div>
-                    <div>💯 Total Score: <span id="finalScore">0</span></div>
+                <div class="stats">
+                    <div>⭐ Stars: <span id="finalStars">0</span></div>
+                    <div>⏱️ Time: <span id="finalTime">0</span>s</div>
+                    <div>📊 Level: <span id="finalLevel">1</span></div>
                 </div>
-                <button class="btn" onclick="restartGame()">Play Again</button>
-                <button class="btn secondary" onclick="showStartScreen()">Main Menu</button>
+                <button class="btn" onclick="restart()">Play Again</button>
             </div>
         </div>
     </div>
 
     <script>
-        /* ==================== GAME STATE ==================== */
-        const gameContainer = document.getElementById('gameContainer');
+        const game = document.getElementById('game');
         const maze = document.getElementById('maze');
-        const startScreen = document.getElementById('startScreen');
-        const endScreen = document.getElementById('endScreen');
-        const levelIndicator = document.getElementById('levelIndicator');
-        const floatingMessage = document.getElementById('floatingMessage');
-        const minimapContent = document.getElementById('minimapContent');
+        const startModal = document.getElementById('start');
+        const endModal = document.getElementById('end');
 
-        let gameState = {
-            running: false,
-            paused: false,
-            currentLevel: 1,
-            maxLevel: 3,
-            playerX: 5,
-            playerY: 5,
-            playerHealth: 3,
-            maxHealth: 3,
-            collectedStars: 0,
-            totalStars: 0,
-            score: 0,
-            timeRemaining: 60,
-            moveSpeed: 2,
-            baseSpeed: 2,
-            invincible: false,
+        let state = {
+            run: false,
+            pause: false,
+            lvl: 1,
+            x: 50,
+            y: 50,
+            hp: 3,
+            stars: 0,
+            total: 0,
+            time: 60,
+            speed: 2,
             enemies: [],
-            powerupTimeout: null,
-            timerInterval: null
+            timer: null
         };
 
-        let player, goal;
-        let isDragging = false;
+        let player, goal, drag = false, mx = 0, my = 0;
 
-        /* ==================== AUDIO (Web Audio API) ==================== */
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const audio = new (window.AudioContext || window.webkitAudioContext)();
 
-        function playSound(type) {
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
+        function sound(type) {
+            const o = audio.createOscillator();
+            const g = audio.createGain();
+            o.connect(g);
+            g.connect(audio.destination);
+            const now = audio.currentTime;
 
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-
-            switch (type) {
-                case 'collect':
-                    oscillator.frequency.value = 800;
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.2);
-                    break;
-                case 'damage':
-                    oscillator.type = 'sawtooth';
-                    oscillator.frequency.value = 200;
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.3);
-                    break;
-                case 'powerup':
-                    oscillator.frequency.value = 600;
-                    oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.3);
-                    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.3);
-                    break;
-                case 'goal':
-                    oscillator.frequency.value = 400;
-                    oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.5);
-                    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-                    oscillator.start(audioContext.currentTime);
-                    oscillator.stop(audioContext.currentTime + 0.5);
-                    break;
+            if (type === 'collect') {
+                o.frequency.value = 800;
+                g.gain.setValueAtTime(0.3, now);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                o.start(now);
+                o.stop(now + 0.2);
+            } else if (type === 'hit') {
+                o.type = 'sawtooth';
+                o.frequency.value = 200;
+                g.gain.setValueAtTime(0.3, now);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                o.start(now);
+                o.stop(now + 0.3);
+            } else if (type === 'goal') {
+                o.frequency.value = 400;
+                o.frequency.exponentialRampToValueAtTime(800, now + 0.5);
+                g.gain.setValueAtTime(0.3, now);
+                g.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                o.start(now);
+                o.stop(now + 0.5);
             }
         }
 
-        /* ==================== LEVEL GENERATION ==================== */
-        function generateLevel(levelNum) {
-            // Clear existing maze
+        function gen(lvl) {
             maze.innerHTML = '';
-            gameState.enemies = [];
+            state.enemies = [];
 
-            // Create player
             player = document.createElement('div');
             player.className = 'player';
-            player.id = 'player';
             maze.appendChild(player);
 
-            // Create goal
             goal = document.createElement('div');
             goal.className = 'goal';
-            goal.id = 'goal';
             maze.appendChild(goal);
 
-            // Level-specific generation
-            if (levelNum === 1) {
-                generateLevel1();
-            } else if (levelNum === 2) {
-                generateLevel2();
-            } else {
-                generateLevel3();
-            }
-
-            // Update minimap
-            updateMinimap();
+            if (lvl === 1) genLvl1();
+            else if (lvl === 2) genLvl2();
+            else genLvl3();
         }
 
-        function generateLevel1() {
-            // Beginner level - static walls, few enemies
-            gameState.playerX = 5;
-            gameState.playerY = 5;
-            gameState.timeRemaining = 60;
+        function genLvl1() {
+            state.x = 10;
+            state.y = 10;
+            state.time = 60;
+            setGoal(85, 85);
 
-            setGoalPosition(85, 85);
+            // Complex maze structure
+            wall(15, 10, 3, 400);
+            wall(15, 10, 300, 3);
+            wall(25, 25, 3, 350);
+            wall(35, 40, 250, 3);
+            wall(45, 45, 3, 300);
+            wall(55, 60, 200, 3);
+            wall(65, 20, 3, 250);
+            wall(35, 70, 180, 3);
+            wall(75, 15, 3, 350);
+            wall(20, 80, 250, 3);
 
-            // Static walls
-            createWall(20, 15, 3, 200);
-            createWall(35, 25, 250, 3);
-            createWall(40, 40, 3, 180);
-            createWall(55, 50, 200, 3);
-            createWall(25, 60, 150, 3);
-            createWall(60, 20, 3, 150);
+            star(20, 30);
+            star(40, 25);
+            star(60, 50);
+            star(50, 75);
+            star(80, 40);
 
-            // Stars
-            createStar(30, 35, 'normal');
-            createStar(50, 15, 'speed');
-            createStar(65, 45, 'normal');
-            createStar(45, 70, 'invincible');
-            createStar(80, 30, 'normal');
-
-            // One slow enemy
-            createEnemy(50, 50, 0.5);
-
-            // A few traps
-            createTrap(40, 30);
-            createTrap(70, 60);
+            enemy(45, 35, 0.5);
+            trap(35, 55);
+            trap(65, 70);
         }
 
-        function generateLevel2() {
-            // Intermediate - moving walls, more enemies
-            gameState.playerX = 5;
-            gameState.playerY = 10;
-            gameState.timeRemaining = 75;
+        function genLvl2() {
+            state.x = 10;
+            state.y = 15;
+            state.time = 75;
+            setGoal(80, 80);
 
-            setGoalPosition(80, 80);
+            wall(18, 12, 3, 450);
+            wall(18, 12, 350, 3);
+            wall(30, 28, 3, 400);
+            wall(42, 45, 280, 3);
+            wall(52, 52, 3, 320);
+            wall(62, 68, 220, 3);
+            wall(72, 18, 3, 280);
+            wall(28, 75, 200, 3);
+            wall(80, 20, 3, 380);
+            wall(15, 85, 300, 3);
+            wall(48, 30, 150, 3);
+            wall(58, 15, 3, 200);
 
-            // Some static walls
-            createWall(25, 20, 3, 250);
-            createWall(50, 35, 200, 3);
-            createWall(65, 55, 3, 200);
+            star(25, 35);
+            star(45, 20);
+            star(65, 45);
+            star(55, 72);
+            star(78, 35);
+            star(38, 80);
 
-            // Moving walls
-            createWall(35, 50, 150, 3, true);
-            createWall(55, 25, 3, 150, true);
-
-            // Stars
-            createStar(32, 30, 'normal');
-            createStar(48, 18, 'speed');
-            createStar(70, 40, 'normal');
-            createStar(55, 65, 'invincible');
-            createStar(82, 25, 'normal');
-            createStar(40, 75, 'speed');
-
-            // Multiple enemies
-            createEnemy(45, 45, 0.8);
-            createEnemy(70, 20, 1);
-
-            // More traps
-            createTrap(38, 40);
-            createTrap(60, 30);
-            createTrap(75, 70);
+            enemy(40, 40, 0.8);
+            enemy(65, 25, 1);
+            trap(32, 50);
+            trap(58, 38);
+            trap(72, 65);
         }
 
-        function generateLevel3() {
-            // Expert - many hazards, fast enemies, fog
-            gameState.playerX = 8;
-            gameState.playerY = 8;
-            gameState.timeRemaining = 90;
+        function genLvl3() {
+            state.x = 8;
+            state.y = 8;
+            state.time = 90;
+            setGoal(88, 88);
 
-            setGoalPosition(88, 88);
+            wall(16, 10, 3, 480);
+            wall(16, 10, 380, 3);
+            wall(28, 26, 3, 450);
+            wall(40, 42, 320, 3);
+            wall(50, 50, 3, 360);
+            wall(60, 66, 250, 3);
+            wall(70, 16, 3, 320);
+            wall(25, 72, 230, 3);
+            wall(78, 18, 3, 400);
+            wall(12, 82, 320, 3);
+            wall(45, 28, 180, 3);
+            wall(55, 14, 3, 220);
+            wall(32, 58, 150, 3);
+            wall(68, 38, 3, 180);
+            wall(22, 45, 120, 3);
+            wall(85, 55, 3, 200);
 
-            // Complex wall maze
-            createWall(20, 15, 3, 300);
-            createWall(35, 30, 300, 3);
-            createWall(45, 45, 3, 250);
-            createWall(60, 55, 250, 3);
-            createWall(30, 70, 200, 3);
+            star(22, 32);
+            star(38, 22);
+            star(54, 38);
+            star(68, 58);
+            star(48, 72);
+            star(82, 32);
+            star(35, 78);
+            star(75, 48);
 
-            // Moving walls
-            createWall(40, 25, 180, 3, true);
-            createWall(70, 40, 3, 180, true);
-
-            // Many stars
-            createStar(28, 22, 'normal');
-            createStar(42, 38, 'speed');
-            createStar(58, 25, 'invincible');
-            createStar(72, 62, 'normal');
-            createStar(50, 75, 'speed');
-            createStar(85, 35, 'normal');
-            createStar(38, 82, 'invincible');
-
-            // Fast enemies
-            createEnemy(50, 30, 1.2);
-            createEnemy(65, 50, 1.5);
-            createEnemy(40, 65, 1);
-
-            // Many traps
-            createTrap(32, 35);
-            createTrap(55, 48);
-            createTrap(68, 28);
-            createTrap(45, 80);
-            createTrap(78, 72);
-
-            // Add fog effect
-            gameContainer.style.setProperty('--fog-opacity', '0.08');
+            enemy(45, 30, 1.2);
+            enemy(62, 48, 1.5);
+            enemy(38, 62, 1);
+            trap(30, 40);
+            trap(52, 52);
+            trap(65, 30);
+            trap(42, 75);
+            trap(75, 68);
         }
 
-        /* ==================== ENTITY CREATION ==================== */
-        function createWall(left, top, width, height, moving = false) {
-            const wall = document.createElement('div');
-            wall.className = 'wall' + (moving ? ' moving' : '');
-            wall.style.left = left + '%';
-            wall.style.top = top + '%';
-            wall.style.width = width + 'px';
-            wall.style.height = height + 'px';
-            maze.appendChild(wall);
+        function wall(l, t, w, h) {
+            const el = document.createElement('div');
+            el.className = 'wall';
+            el.style.left = l + '%';
+            el.style.top = t + '%';
+            el.style.width = w + 'px';
+            el.style.height = h + 'px';
+            maze.appendChild(el);
         }
 
-        function createStar(left, top, type) {
-            const star = document.createElement('div');
-            star.className = `star ${type}`;
-            star.style.left = left + '%';
-            star.style.top = top + '%';
-            star.setAttribute('data-collected', 'false');
-            star.setAttribute('data-type', type);
-            maze.appendChild(star);
-            gameState.totalStars++;
+        function star(l, t) {
+            const el = document.createElement('div');
+            el.className = 'star';
+            el.style.left = l + '%';
+            el.style.top = t + '%';
+            el.dataset.collected = '0';
+            maze.appendChild(el);
+            state.total++;
         }
 
-        function createEnemy(x, y, speed) {
-            const enemy = document.createElement('div');
-            enemy.className = 'enemy';
-            enemy.style.left = x + '%';
-            enemy.style.top = y + '%';
-            maze.appendChild(enemy);
+        function enemy(x, y, spd) {
+            const el = document.createElement('div');
+            el.className = 'enemy';
+            el.style.left = x + '%';
+            el.style.top = y + '%';
+            maze.appendChild(el);
 
-            gameState.enemies.push({
-                element: enemy,
-                x: x,
-                y: y,
-                speed: speed,
-                directionX: (Math.random() - 0.5) * 2,
-                directionY: (Math.random() - 0.5) * 2
+            state.enemies.push({
+                el, x, y, spd,
+                dx: (Math.random() - 0.5) * 2,
+                dy: (Math.random() - 0.5) * 2
             });
         }
 
-        function createTrap(left, top) {
-            const trap = document.createElement('div');
-            trap.className = 'trap';
-            trap.style.left = left + '%';
-            trap.style.top = top + '%';
-            maze.appendChild(trap);
+        function trap(l, t) {
+            const el = document.createElement('div');
+            el.className = 'trap';
+            el.style.left = l + '%';
+            el.style.top = t + '%';
+            maze.appendChild(el);
         }
 
-        function setGoalPosition(x, y) {
+        function setGoal(x, y) {
             goal.style.left = x + '%';
             goal.style.top = y + '%';
         }
 
-        /* ==================== GAME LOGIC ==================== */
-        function startGame() {
-            startScreen.classList.remove('show');
-            gameState.running = true;
-            gameState.currentLevel = 1;
-            gameState.playerHealth = gameState.maxHealth;
-            gameState.score = 0;
-            gameState.collectedStars = 0;
-
-            loadLevel(1);
-            startTimer();
-            gameLoop();
-            gameContainer.focus();
+        function start() {
+            startModal.classList.remove('show');
+            state.run = true;
+            state.lvl = 1;
+            state.hp = 3;
+            state.stars = 0;
+            load(1);
+            tick();
+            loop();
+            game.focus();
         }
 
-        function loadLevel(levelNum) {
-            gameState.currentLevel = levelNum;
-            gameState.collectedStars = 0;
-            gameState.totalStars = 0;
-            gameState.moveSpeed = gameState.baseSpeed;
-            gameState.invincible = false;
-
-            // Show level indicator
-            levelIndicator.textContent = `LEVEL ${levelNum}`;
-            levelIndicator.classList.add('show');
-            setTimeout(() => levelIndicator.classList.remove('show'), 1500);
-
-            generateLevel(levelNum);
-            updateHUD();
-            updateSpotlight();
+        function load(lvl) {
+            state.lvl = lvl;
+            state.stars = 0;
+            state.total = 0;
+            gen(lvl);
+            update();
+            spotlight();
         }
 
-        /* ==================== TIMER ==================== */
-        function startTimer() {
-            clearInterval(gameState.timerInterval);
-            const timerEl = document.getElementById('timer');
+        function tick() {
+            clearInterval(state.timer);
+            const t = document.getElementById('timer');
 
-            gameState.timerInterval = setInterval(() => {
-                if (!gameState.running || gameState.paused) return;
+            state.timer = setInterval(() => {
+                if (!state.run || state.pause) return;
 
-                gameState.timeRemaining--;
-                timerEl.textContent = `${gameState.timeRemaining}s`;
+                state.time--;
+                t.textContent = `${state.time}s`;
+                t.className = state.time <= 10 ? 'timer warn' : 'timer';
 
-                if (gameState.timeRemaining <= 10) {
-                    timerEl.classList.add('warning');
-                }
-
-                if (gameState.timeRemaining <= 0) {
-                    endGame(false);
-                }
+                if (state.time <= 0) end(false);
             }, 1000);
         }
 
-        /* ==================== GAME LOOP ==================== */
-        function gameLoop() {
-            if (!gameState.running) return;
+        function loop() {
+            if (!state.run) return;
 
-            if (!gameState.paused) {
+            if (!state.pause) {
                 moveEnemies();
-                checkEnemyCollision();
-                checkTrapCollision();
-                checkStarCollision();
-                checkGoalCollision();
-                updateSpotlight();
+                checkEnemy();
+                checkTrap();
+                checkStar();
+                checkGoal();
+                spotlight();
             }
 
-            requestAnimationFrame(gameLoop);
+            requestAnimationFrame(loop);
         }
 
-        /* ==================== PLAYER MOVEMENT ==================== */
-        function movePlayer(dx, dy) {
-            const newX = Math.min(95, Math.max(0, gameState.playerX + dx));
-            const newY = Math.min(95, Math.max(0, gameState.playerY + dy));
+        function move(dx, dy) {
+            const nx = Math.min(95, Math.max(0, state.x + dx));
+            const ny = Math.min(95, Math.max(0, state.y + dy));
 
-            player.style.left = newX + '%';
-            player.style.top = newY + '%';
+            player.style.left = nx + '%';
+            player.style.top = ny + '%';
 
-            if (checkWallCollision()) {
-                player.style.left = gameState.playerX + '%';
-                player.style.top = gameState.playerY + '%';
+            if (hitWall()) {
+                player.style.left = state.x + '%';
+                player.style.top = state.y + '%';
                 return;
             }
 
-            gameState.playerX = newX;
-            gameState.playerY = newY;
+            state.x = nx;
+            state.y = ny;
         }
 
-        /* ==================== COLLISIONS ==================== */
-        function isColliding(a, b) {
+        function hit(a, b) {
             return !(a.right < b.left || a.left > b.right || a.bottom < b.top || a.top > b.bottom);
         }
 
-        function checkWallCollision() {
+        function hitWall() {
             const p = player.getBoundingClientRect();
-            return [...document.querySelectorAll('.wall')].some(w => isColliding(p, w.getBoundingClientRect()));
+            return [...document.querySelectorAll('.wall')].some(w => hit(p, w.getBoundingClientRect()));
         }
 
-        function checkStarCollision() {
+        function checkStar() {
             const p = player.getBoundingClientRect();
-            document.querySelectorAll('.star').forEach(star => {
-                if (star.dataset.collected === 'false' && isColliding(p, star.getBoundingClientRect())) {
-                    star.dataset.collected = 'true';
-                    star.style.opacity = '0';
-                    gameState.collectedStars++;
-                    gameState.score += 10;
-                    playSound('collect');
-
-                    if (star.dataset.type === 'speed') activateSpeedBoost();
-                    if (star.dataset.type === 'invincible') activateInvincibility();
-
-                    updateHUD();
+            document.querySelectorAll('.star').forEach(s => {
+                if (s.dataset.collected === '0' && hit(p, s.getBoundingClientRect())) {
+                    s.dataset.collected = '1';
+                    s.style.opacity = '0';
+                    state.stars++;
+                    sound('collect');
+                    update();
                 }
             });
         }
 
-        function checkGoalCollision() {
-            if (gameState.collectedStars !== gameState.totalStars) return;
-
-            if (isColliding(player.getBoundingClientRect(), goal.getBoundingClientRect())) {
-                playSound('goal');
-                if (gameState.currentLevel < gameState.maxLevel) {
-                    loadLevel(gameState.currentLevel + 1);
+        function checkGoal() {
+            if (state.stars !== state.total) return;
+            if (hit(player.getBoundingClientRect(), goal.getBoundingClientRect())) {
+                sound('goal');
+                if (state.lvl < 3) {
+                    load(state.lvl + 1);
                 } else {
-                    endGame(true);
+                    end(true);
                 }
             }
         }
 
-        /* ==================== ENEMIES ==================== */
         function moveEnemies() {
-            gameState.enemies.forEach(e => {
-                e.x += e.directionX * e.speed;
-                e.y += e.directionY * e.speed;
+            state.enemies.forEach(e => {
+                e.x += e.dx * e.spd;
+                e.y += e.dy * e.spd;
 
-                if (e.x < 5 || e.x > 90) e.directionX *= -1;
-                if (e.y < 5 || e.y > 90) e.directionY *= -1;
+                if (e.x < 5 || e.x > 90) e.dx *= -1;
+                if (e.y < 5 || e.y > 90) e.dy *= -1;
 
-                e.element.style.left = e.x + '%';
-                e.element.style.top = e.y + '%';
+                e.el.style.left = e.x + '%';
+                e.el.style.top = e.y + '%';
             });
         }
 
-        function checkEnemyCollision() {
-            if (gameState.invincible) return;
-
+        function checkEnemy() {
             const p = player.getBoundingClientRect();
-            gameState.enemies.forEach(e => {
-                if (isColliding(p, e.element.getBoundingClientRect())) {
-                    takeDamage();
-                }
+            state.enemies.forEach(e => {
+                if (hit(p, e.el.getBoundingClientRect())) damage();
             });
         }
 
-        function checkTrapCollision() {
-            if (gameState.invincible) return;
-
+        function checkTrap() {
             const p = player.getBoundingClientRect();
-            document.querySelectorAll('.trap').forEach(trap => {
-                if (isColliding(p, trap.getBoundingClientRect())) {
-                    takeDamage();
-                }
+            document.querySelectorAll('.trap').forEach(t => {
+                if (hit(p, t.getBoundingClientRect())) damage();
             });
         }
 
-        /* ==================== DAMAGE ==================== */
-        function takeDamage() {
-            gameState.playerHealth--;
-            playSound('damage');
-            gameContainer.classList.add('shake', 'damage');
-
-            setTimeout(() => gameContainer.classList.remove('shake', 'damage'), 300);
-
-            updateHUD();
-
-            if (gameState.playerHealth <= 0) {
-                endGame(false);
-            }
+        function damage() {
+            state.hp--;
+            sound('hit');
+            update();
+            if (state.hp <= 0) end(false);
         }
 
-        /* ==================== POWER UPS ==================== */
-        function activateSpeedBoost() {
-            clearTimeout(gameState.powerupTimeout);
-            player.classList.add('boosted');
-            gameState.moveSpeed = 4;
-            showMessage('⚡ Speed Boost!');
-
-            gameState.powerupTimeout = setTimeout(() => {
-                player.classList.remove('boosted');
-                gameState.moveSpeed = gameState.baseSpeed;
-            }, 5000);
+        function update() {
+            document.getElementById('stars').textContent = state.stars;
+            document.getElementById('total').textContent = state.total;
+            document.getElementById('health').textContent = state.hp;
+            document.getElementById('level').textContent = state.lvl;
         }
 
-        function activateInvincibility() {
-            clearTimeout(gameState.powerupTimeout);
-            player.classList.add('invincible');
-            gameState.invincible = true;
-            showMessage('✨ Invincible!');
+        function end(win) {
+            state.run = false;
+            clearInterval(state.timer);
 
-            gameState.powerupTimeout = setTimeout(() => {
-                player.classList.remove('invincible');
-                gameState.invincible = false;
-            }, 4000);
+            document.getElementById('endTitle').textContent = win ? '🎉 Victory!' : '💀 Game Over';
+            document.getElementById('endTitle').className = win ? 'modal-title' : 'modal-title fail';
+            document.getElementById('finalStars').textContent = state.stars;
+            document.getElementById('finalTime').textContent = state.time;
+            document.getElementById('finalLevel').textContent = state.lvl;
+
+            endModal.classList.add('show');
         }
 
-        /* ==================== UI ==================== */
-        function updateHUD() {
-            document.getElementById('starCount').textContent = gameState.collectedStars;
-            document.getElementById('totalStars').textContent = gameState.totalStars;
-            document.getElementById('health').textContent = gameState.playerHealth;
-            document.getElementById('levelNum').textContent = gameState.currentLevel;
+        function restart() {
+            endModal.classList.remove('show');
+            start();
         }
 
-        function showMessage(text) {
-            floatingMessage.textContent = text;
-            floatingMessage.classList.add('show');
-            setTimeout(() => floatingMessage.classList.remove('show'), 1200);
+        function spotlight() {
+            const r = player.getBoundingClientRect();
+            const c = game.getBoundingClientRect();
+            const x = ((r.left + r.width / 2 - c.left) / c.width * 100);
+            const y = ((r.top + r.height / 2 - c.top) / c.height * 100);
+            game.style.setProperty('--x', x + '%');
+            game.style.setProperty('--y', y + '%');
         }
 
-        /* ==================== GAME END ==================== */
-        function endGame(victory) {
-            gameState.running = false;
-            clearInterval(gameState.timerInterval);
-
-            document.getElementById('endTitle').textContent = victory ? '🎉 Victory!' : '💀 Game Over';
-            document.getElementById('endTitle').className = `modal-title ${victory ? '' : 'game-over'}`;
-            document.getElementById('finalStars').textContent = gameState.collectedStars;
-            document.getElementById('finalTime').textContent = gameState.timeRemaining;
-            document.getElementById('finalLevel').textContent = gameState.currentLevel;
-            document.getElementById('finalScore').textContent = gameState.score;
-
-            endScreen.classList.add('show');
-        }
-
-        function restartGame() {
-            endScreen.classList.remove('show');
-            showStartScreen();
-        }
-
-        function showStartScreen() {
-            startScreen.classList.add('show');
-        }
-
-        /* ==================== CONTROLS ==================== */
+        // Controls
         window.addEventListener('keydown', e => {
-            if (!gameState.running) return;
-
-            if (e.key === ' ') gameState.paused = !gameState.paused;
-
-            const s = gameState.moveSpeed;
-            if (e.key === 'ArrowLeft' || e.key === 'a') movePlayer(-s, 0);
-            if (e.key === 'ArrowRight' || e.key === 'd') movePlayer(s, 0);
-            if (e.key === 'ArrowUp' || e.key === 'w') movePlayer(0, -s);
-            if (e.key === 'ArrowDown' || e.key === 's') movePlayer(0, s);
+            if (!state.run) return;
+            if (e.key === ' ') {
+                e.preventDefault();
+                state.pause = !state.pause;
+            }
+            const s = state.speed;
+            if (e.key === 'ArrowLeft' || e.key === 'a') move(-s, 0);
+            if (e.key === 'ArrowRight' || e.key === 'd') move(s, 0);
+            if (e.key === 'ArrowUp' || e.key === 'w') move(0, -s);
+            if (e.key === 'ArrowDown' || e.key === 's') move(0, s);
         });
 
-        /* ==================== SPOTLIGHT ==================== */
-        function updateSpotlight() {
-            const rect = player.getBoundingClientRect();
-            const c = gameContainer.getBoundingClientRect();
-            gameContainer.style.setProperty('--x', ((rect.left + rect.width / 2 - c.left) / c.width * 100) + '%');
-            gameContainer.style.setProperty('--y', ((rect.top + rect.height / 2 - c.top) / c.height * 100) + '%');
+        function pointerStart(e) {
+            if (!state.run) return;
+            drag = true;
+            const pos = e.touches ? e.touches[0] : e;
+            mx = pos.clientX;
+            my = pos.clientY;
         }
+
+        function pointerMove(e) {
+            if (!state.run || !drag) return;
+            const pos = e.touches ? e.touches[0] : e;
+            const dx = (pos.clientX - mx) * 0.1;
+            const dy = (pos.clientY - my) * 0.1;
+            if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) move(dx, dy);
+            mx = pos.clientX;
+            my = pos.clientY;
+        }
+
+        function pointerEnd() {
+            drag = false;
+        }
+
+        game.addEventListener('mousedown', pointerStart);
+        game.addEventListener('mousemove', pointerMove);
+        game.addEventListener('mouseup', pointerEnd);
+        game.addEventListener('touchstart', pointerStart);
+        game.addEventListener('touchmove', pointerMove);
+        game.addEventListener('touchend', pointerEnd);
+    </script>
+</body>
+</html>
